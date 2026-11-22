@@ -1,0 +1,21 @@
+{
+  "AppName": "Media Info Report",
+  "EntryScript": "src\\Media-Info-Report.ps1",
+  "Icon": "assets\\Media-Info-Report.ico",
+  "Side": "Home",
+  "Description": "PowerShell/WPF tool for reporting the resolution, codecs and audio of video files",
+  "RequireAdmin": false,
+  "Release": {
+    "Files": {
+      "Media-Info-Report.ps1": "src\\Media-Info-Report.ps1",
+      "New-MediaInfoReportShortcut.ps1": "src\\New-MediaInfoReportShortcut.ps1",
+      "Media Info Report.cmd": "release\\Media Info Report.cmd",
+      "assets\\Media-Info-Report.ico": "assets\\Media-Info-Report.ico",
+      "assets\\Media-Info-Report.png": "assets\\Media-Info-Report.png",
+      "README.md": "README.md",
+      "CHANGELOG.md": "CHANGELOG.md",
+      "LICENSE": "LICENSE"
+    },
+    "Shortcut": "New-MediaInfoReportShortcut.ps1"
+  }
+}
