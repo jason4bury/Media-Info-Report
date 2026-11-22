@@ -26,7 +26,7 @@ $ErrorActionPreference = 'Stop'
 # The version lives here and in CHANGELOG.md; Build.cmd stops if they disagree.
 # Two-digit minor: 1.00, 1.01 ... 1.10. The release folder is "Media Info Report v<version>".
 $script:AppName     = 'Media Info Report'
-$script:AppVersion  = '1.00'
+$script:AppVersion  = '1.01'
 $script:Description = 'PowerShell/WPF tool for reporting the resolution, codecs and audio of video files'
 $script:Copyright   = 'Copyright (c) 2026 Jason Rhodes'
 $script:RepoUrl     = 'https://github.com/jason4bury/Media-Info-Report'
@@ -642,12 +642,15 @@ Settings... sets the folders to scan (your Videos folder to begin with; NAS shar
 WHAT THE COLOURS MEAN
 Red: unlikely to play directly (for example a format your TV doesn't play, or sound it can't decode, so you'd see a picture with no sound). Amber: may need your media server to convert it, or may stutter. Green: should play.
 
+CSV FILES AND EXCEL
+The CSV opens correctly in Excel with a double-click: names such as 1917, 007 or 3-10 stay as typed. To do that such names are written as ="1917" in the file, which is what you'll see in a plain text editor, or in a program other than a spreadsheet that reads the CSV. Ordinary titles are written as they are.
+
 YOUR TV
 In Settings..., pick your TV (or the nearest) under Your TV: that ticks what it plays (HEVC, AV1, VP9, 4K, HDR, Dolby Vision, DTS, TrueHD and FLAC sound). Change any tick for your own choice. Tick the eARC box if a sound bar or AV receiver is plugged into the TV's eARC socket, as that takes TrueHD and DTS-HD sound straight through. Tick DTS in MKV files only if your TV reads DTS just from .mkv files: DTS in any other file is then flagged red (even with eARC) unless the file has another sound track the TV plays. You can also set the highest bit rate your TV copes with over your network. The checks follow those settings.
 The Sony BRAVIA XR-42A90K (2022) choice takes its video and sound formats from Sony's list for that TV: H.264, HEVC (10-bit too) and VP9 up to 4K, no AV1; AAC, Dolby Digital, Dolby Digital Plus and DTS (the core track, in MKV files) sound. It doesn't play FLAC, and needs a sound system on eARC for TrueHD. While that TV is picked, each file type is checked against Sony's list too: which video and sound it can hold and how big the picture can be (for example VP9 only in MKV and WebM, MP3 only in AVI, and subtitles inside the file only in MKV). File types that aren't on the list are amber. Sony's list is for the TV's own player (USB and home network); Plex, Jellyfin and other apps on the TV may play more. Frame rates, levels and sample rates aren't checked. Changing a tick, other than eARC, makes it My own choice, which doesn't use the list. The HDR ticks and the other ready-made TVs are general guides, so check them against your own TV.
 
 THE LIST
-Problems only hides the ones that should play. Type in the search box to find a film by name, format or folder. Click a line to see everything about it on the right; double-click (or Play) to play it, and Open folder to see it in Explorer. Export... saves the list (or just what you have filtered) as an HTML report, to open in any browser, print or share, or as a CSV file for Excel.
+Problems only hides the ones that should play. Type in the search box to find a film by name, format or folder. Click a line to see everything about it on the right; double-click (or Play) to play it, and Open folder to see it in Explorer. Export CSV saves the videos shown in the list as a CSV file for Excel and other spreadsheets. HTML report saves them as a page to open in any browser, print or share. Both save only what's shown, so untick Problems only and clear the search to save every video.
 
 LOOK
 The Look button switches between Light, Dark and the same as Windows, from the next start.
@@ -801,29 +804,29 @@ STYLES
 # ---------------------------------------------------------------------------
 $mainXaml = @'
 <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Width="1280" Height="760" MinWidth="800" MinHeight="440" WindowStartupLocation="CenterScreen"
-        FontFamily="Segoe UI" FontSize="13" Background="{Page}" Foreground="{Ink}">
+        Width="1280" Height="760" MinWidth="900" MinHeight="520" WindowStartupLocation="CenterScreen"
+        FontFamily="Segoe UI" FontSize="15" Background="{Page}" Foreground="{Ink}">
   <Window.Resources>
 STYLES
     <Style TargetType="CheckBox"><Setter Property="Foreground" Value="{Ink}"/><Setter Property="VerticalAlignment" Value="Center"/></Style>
     <Style x:Key="ProblemText" TargetType="TextBlock">
-      <Setter Property="Foreground" Value="{Good}"/><Setter Property="TextTrimming" Value="CharacterEllipsis"/><Setter Property="ToolTip" Value="{Binding Problem}"/>
+      <Setter Property="Foreground" Value="{Good}"/><Setter Property="TextWrapping" Value="Wrap"/><Setter Property="ToolTip" Value="{Binding Problem}"/>
       <Style.Triggers>
         <DataTrigger Binding="{Binding Severity}" Value="1"><Setter Property="Foreground" Value="{Warn}"/></DataTrigger>
         <DataTrigger Binding="{Binding Severity}" Value="2"><Setter Property="Foreground" Value="{Bad}"/><Setter Property="FontWeight" Value="SemiBold"/></DataTrigger>
       </Style.Triggers>
     </Style>
-    <Style x:Key="Cell" TargetType="TextBlock"><Setter Property="TextTrimming" Value="CharacterEllipsis"/><Setter Property="ToolTip" Value="{Binding Text, RelativeSource={RelativeSource Self}}"/></Style>
+    <Style x:Key="Cell" TargetType="TextBlock"><Setter Property="TextWrapping" Value="Wrap"/><Setter Property="ToolTip" Value="{Binding Text, RelativeSource={RelativeSource Self}}"/></Style>
     <Style TargetType="DataGridColumnHeader">
       <Setter Property="Background" Value="{Card}"/><Setter Property="Foreground" Value="{Soft}"/><Setter Property="FontWeight" Value="SemiBold"/>
-      <Setter Property="Padding" Value="8,7"/><Setter Property="BorderBrush" Value="{Line}"/><Setter Property="BorderThickness" Value="0,0,0,1"/>
+      <Setter Property="Padding" Value="12,11"/><Setter Property="BorderBrush" Value="{Line}"/><Setter Property="BorderThickness" Value="0,0,0,1"/>
     </Style>
     <Style TargetType="DataGridRow">
       <Setter Property="Background" Value="{Card}"/><Setter Property="Foreground" Value="{Ink}"/>
       <Style.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter Property="Background" Value="{Hover}"/></Trigger></Style.Triggers>
     </Style>
     <Style TargetType="DataGridCell">
-      <Setter Property="BorderThickness" Value="0"/><Setter Property="Padding" Value="8,6"/>
+      <Setter Property="BorderThickness" Value="0"/><Setter Property="Padding" Value="12,13"/>
       <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="DataGridCell">
         <Border Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}"><ContentPresenter VerticalAlignment="Center"/></Border>
       </ControlTemplate></Setter.Value></Setter>
@@ -832,10 +835,11 @@ STYLES
     <Style TargetType="ProgressBar"><Setter Property="Foreground" Value="{Accent}"/><Setter Property="Background" Value="{Line}"/><Setter Property="BorderThickness" Value="0"/></Style>
   </Window.Resources>
   <DockPanel>
-    <Border DockPanel.Dock="Bottom" Background="{Card}" BorderBrush="{Line}" BorderThickness="0,1,0,0" Padding="18,12" MinHeight="60">
+    <Border DockPanel.Dock="Bottom" Background="{Card}" BorderBrush="{Line}" BorderThickness="0,1,0,0" Padding="24,16" MinHeight="72">
       <DockPanel VerticalAlignment="Center">
         <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
-          <Button x:Name="BtnExport" Content="Export..." ToolTip="Save the list as an HTML report or a CSV file for Excel"/>
+          <Button x:Name="BtnCsv" Content="Export CSV" ToolTip="Save the videos shown in the list as a CSV file for Excel and other spreadsheets. Untick Problems only to save them all."/>
+          <Button x:Name="BtnReport" Content="HTML report" ToolTip="Save the videos shown in the list as a web page to open, print or share. Untick Problems only to save them all."/>
           <Button x:Name="BtnLook"/>
           <Button x:Name="BtnHelp" Content="Help"/>
           <Button x:Name="BtnAbout" Content="About" Margin="0"/>
@@ -844,21 +848,21 @@ STYLES
       </DockPanel>
     </Border>
     <ProgressBar x:Name="Progress" DockPanel.Dock="Bottom" Height="3" Visibility="Hidden"/>
-    <DockPanel DockPanel.Dock="Top" Margin="18,14,18,0">
-      <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+    <DockPanel DockPanel.Dock="Top" Margin="24,20,24,0">
+      <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Height="52" VerticalAlignment="Center">
         <Button x:Name="BtnSettings" Content="Settings..." ToolTip="The video folders, ffprobe and what your TV plays"/>
         <Button x:Name="BtnAll" Content="Scan all again" ToolTip="Read every file again, not just new or changed ones"/>
         <Button x:Name="BtnScan" Content="Scan" Style="{StaticResource Accent}" MinWidth="90" Margin="0"/>
       </StackPanel>
       <StackPanel VerticalAlignment="Center">
-        <TextBlock x:Name="TxtSummary" FontSize="16" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+        <TextBlock x:Name="TxtSummary" FontSize="22" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,0,16,0"/>
         <TextBlock x:Name="TxtTotals" Foreground="{Soft}" Margin="0,2,0,0" TextTrimming="CharacterEllipsis"/>
       </StackPanel>
     </DockPanel>
-    <DockPanel DockPanel.Dock="Top" Margin="18,10,18,0">
+    <DockPanel DockPanel.Dock="Top" Margin="24,16,24,0">
       <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
         <CheckBox x:Name="ChkProblems" Content="Problems only" Margin="0,0,14,0" IsChecked="True"/>
-        <Grid Width="240">
+        <Grid Width="340" MinHeight="36">
           <TextBox x:Name="TxtSearch" ToolTip="Find a video by name, format or folder"/>
           <TextBlock x:Name="TxtHint" Text="Search" Foreground="{Soft}" Margin="9,0,0,0" VerticalAlignment="Center" IsHitTestVisible="False"/>
         </Grid>
@@ -870,22 +874,22 @@ STYLES
         </DockPanel>
       </Border>
     </DockPanel>
-    <Grid Margin="18,12,18,12">
-      <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="320"/></Grid.ColumnDefinitions>
+    <Grid Margin="24,16,24,18">
+      <Grid.ColumnDefinitions><ColumnDefinition Width="3.5*"/><ColumnDefinition Width="*" MinWidth="260" MaxWidth="480"/></Grid.ColumnDefinitions>
       <DataGrid x:Name="Grid" AutoGenerateColumns="False" IsReadOnly="True" SelectionMode="Single" HeadersVisibility="Column" RowHeaderWidth="0"
                 Background="{Card}" RowBackground="{Card}" Foreground="{Ink}" BorderBrush="{Line}" BorderThickness="1"
-                GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="{Line}" CanUserResizeRows="False" EnableRowVirtualization="True">
+                GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="{Line}" CanUserResizeRows="False" EnableRowVirtualization="True" VirtualizingPanel.ScrollUnit="Pixel">
         <DataGrid.Columns>
-          <DataGridTextColumn Header="Problem" Width="2.2*" Binding="{Binding Problem}" ElementStyle="{StaticResource ProblemText}" SortMemberPath="Severity"/>
-          <DataGridTextColumn Header="Name" Width="2*" Binding="{Binding Name}" ElementStyle="{StaticResource Cell}"/>
-          <DataGridTextColumn Header="Res" Width="60" Binding="{Binding Res}"/>
-          <DataGridTextColumn Header="Video" Width="1.1*" Binding="{Binding Video}" ElementStyle="{StaticResource Cell}"/>
-          <DataGridTextColumn Header="Sound" Width="1.3*" Binding="{Binding Audio}" ElementStyle="{StaticResource Cell}"/>
-          <DataGridTextColumn Header="Size" Width="80" Binding="{Binding Size}" SortMemberPath="Bytes"/>
-          <DataGridTextColumn Header="Length" Width="74" Binding="{Binding Length}" SortMemberPath="Seconds"/>
+          <DataGridTextColumn Header="Problem" Width="2.3*" MinWidth="170" Binding="{Binding Problem}" ElementStyle="{StaticResource ProblemText}" SortMemberPath="Severity"/>
+          <DataGridTextColumn Header="Name" Width="3.3*" MinWidth="190" Binding="{Binding Name}" ElementStyle="{StaticResource Cell}"/>
+          <DataGridTextColumn Header="Res" Width="Auto" MinWidth="72" Binding="{Binding Res}"/>
+          <DataGridTextColumn Header="Video" Width="1*" MinWidth="85" Binding="{Binding Video}" ElementStyle="{StaticResource Cell}"/>
+          <DataGridTextColumn Header="Sound" Width="1*" MinWidth="85" Binding="{Binding Audio}" ElementStyle="{StaticResource Cell}"/>
+          <DataGridTextColumn Header="Size" Width="Auto" MinWidth="88" Binding="{Binding Size}" SortMemberPath="Bytes"/>
+          <DataGridTextColumn Header="Length" Width="Auto" MinWidth="94" Binding="{Binding Length}" SortMemberPath="Seconds"/>
         </DataGrid.Columns>
       </DataGrid>
-      <Border Grid.Column="1" Margin="12,0,0,0" Background="{Card}" BorderBrush="{Line}" BorderThickness="1" CornerRadius="8" Padding="16,14">
+      <Border Grid.Column="1" Margin="18,0,0,0" Background="{Card}" BorderBrush="{Line}" BorderThickness="1" CornerRadius="8" Padding="22,20">
         <DockPanel>
           <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Margin="0,10,0,0">
             <Button x:Name="BtnPlay" Content="Play" IsEnabled="False"/>
@@ -893,7 +897,7 @@ STYLES
           </StackPanel>
           <ScrollViewer VerticalScrollBarVisibility="Auto">
             <StackPanel>
-              <TextBlock x:Name="DName" FontSize="15" FontWeight="SemiBold" TextWrapping="Wrap" Text="Click a video to see its details."/>
+              <TextBlock x:Name="DName" FontSize="18" FontWeight="SemiBold" TextWrapping="Wrap" Text="Click a video to see its details."/>
               <TextBlock x:Name="DProblem" TextWrapping="Wrap" Margin="0,8,0,0"/>
               <Grid x:Name="DGrid" Margin="0,12,0,0"/>
             </StackPanel>
@@ -985,8 +989,8 @@ function Show-Details {
     foreach ($row in $rows) {
         if (-not $row[1]) { continue }
         $ui.DGrid.RowDefinitions.Add((New-Object Windows.Controls.RowDefinition))
-        $a = New-Object Windows.Controls.TextBlock; $a.Text = $row[0]; $a.Foreground = Get-Brush 'Soft'; $a.Margin = '0,0,14,8'
-        $b = New-Object Windows.Controls.TextBlock; $b.Text = $row[1]; $b.TextWrapping = 'Wrap'; $b.Margin = '0,0,0,8'
+        $a = New-Object Windows.Controls.TextBlock; $a.Text = $row[0]; $a.Foreground = Get-Brush 'Soft'; $a.Margin = '0,0,18,14'
+        $b = New-Object Windows.Controls.TextBlock; $b.Text = $row[1]; $b.TextWrapping = 'Wrap'; $b.Margin = '0,0,0,14'
         [Windows.Controls.Grid]::SetRow($a, $r); [Windows.Controls.Grid]::SetRow($b, $r); [Windows.Controls.Grid]::SetColumn($b, 1)
         [void]$ui.DGrid.Children.Add($a); [void]$ui.DGrid.Children.Add($b); $r++
     }
@@ -1144,31 +1148,70 @@ document.querySelectorAll('#t th').forEach(function (th, n) {
     [IO.File]::WriteAllText($Path, $html, (New-Object Text.UTF8Encoding $false))
 }
 
-function Export-List {
-    $dlg = New-Object Microsoft.Win32.SaveFileDialog
-    $dlg.Filter = 'HTML report (*.html)|*.html|CSV file for Excel (*.csv)|*.csv'
-    $dlg.FileName = "Media info $((Get-Date).ToString('yyyy-MM-dd'))"
-    if (-not $dlg.ShowDialog($script:Window)) { return }
+function Get-ExcelText([string]$Text) {
+    <# A CSV value that Excel opens as typed. Left to itself it makes 007 a 7, 3-10 a date and 10 am a time, and runs
+       text starting = + or - as a formula: those are written ="...", which Excel reads as text. An ordinary title
+       stays plain, whatever numbers are in it (Blade Runner 2049): a word of four letters or more that isn't a month
+       or a day means Excel can't take it for a number or a date. #>
+    if (-not $Text) { return '' }
+    if ($Text -notmatch '^[\s=+\-@#]') {
+        if ($Text -notmatch '\d' -and $Text -notmatch '^(true|false)$') { return $Text }
+        $dates = foreach ($f in [Globalization.DateTimeFormatInfo]::InvariantInfo, (Get-Culture).DateTimeFormat) { $f.MonthNames; $f.MonthGenitiveNames; $f.DayNames }
+        foreach ($word in [regex]::Matches($Text, '\p{L}{4,}')) {
+            $w = $word.Value
+            if ($w -match '^(true|false)$') { continue }
+            $isDate = $false
+            foreach ($d in $dates) { if ($d -and $d.StartsWith($w, [StringComparison]::OrdinalIgnoreCase)) { $isDate = $true; break } }
+            if (-not $isDate) { return $Text }
+        }
+    }
+    if ($Text.Length -gt 7000) { return " $Text" }   # past Excel's limit for a formula: the space keeps it text
+    $parts = for ($i = 0; $i -lt $Text.Length; $i += 255) { '"' + $Text.Substring($i, [math]::Min(255, $Text.Length - $i)).Replace('"', '""') + '"' }
+    return '=' + (@($parts) -join '&')
+}
+
+function Export-List([ValidateSet('Csv', 'Html')][string]$Kind) {
     $rows = @([Windows.Data.CollectionViewSource]::GetDefaultView($script:Items))
-    if ($dlg.FileName -match '\.html?$') {
+    if (-not $rows.Count) {
+        [void](Show-AppMessage $(if ($script:Items.Count) { 'None of your videos are shown in the list, so there is nothing to export. Untick Problems only, or clear the search.' } else { 'There are no videos to export yet. Press Scan first.' }))
+        return
+    }
+    $of = if ($rows.Count -lt $script:Items.Count) { " of $($script:Items.Count) (only the ones shown)" } else { '' }
+    $ext = $Kind.ToLower()
+    $dlg = New-Object Microsoft.Win32.SaveFileDialog
+    $dlg.Filter = if ($Kind -eq 'Csv') { 'CSV file for Excel (*.csv)|*.csv' } else { 'HTML report (*.html)|*.html' }
+    $dlg.DefaultExt = ".$ext"
+    $dlg.AddExtension = $true
+    $dlg.FileName = "Media info $((Get-Date).ToString('yyyy-MM-dd')).$ext"
+    if (-not $dlg.ShowDialog($script:Window)) { return }
+    if ($Kind -eq 'Html') {
         Export-Html $dlg.FileName $rows
-        Set-Status "Saved the report of $($rows.Count) video$(if ($rows.Count -ne 1) { 's' }): $($dlg.FileName)" 'Good'
+        Set-Status "Saved the report of $($rows.Count) video$(if ($rows.Count -ne 1) { 's' })${of}: $($dlg.FileName)" 'Good'
         if (Show-AppMessage "Saved the report of $($rows.Count) video$(if ($rows.Count -ne 1) { 's' }).`n`nOpen it now?" -YesText 'Open' -NoText 'Close') { Start-Process $dlg.FileName }
     } else {
-        $rows | Select-Object Name, Problem, Res, Width, Height, Video, Hdr, Audio, Subs, Container, Size, Bytes, Length, Rate, Folder |
+        # Name is the file's own; the other columns are the app's wording, which Excel leaves alone (a full path too).
+        $rows | Select-Object @{ n = 'Name'; e = { Get-ExcelText $_.Name } }, Problem, Res, Width, Height, Video, Hdr,
+            @{ n = 'Audio'; e = { if ($_.Audio -match '^\P{L}') { Get-ExcelText $_.Audio } else { $_.Audio } } },
+            Subs, Container, Size, Bytes, Length, Rate,
+            @{ n = 'Folder'; e = { if ($_.Folder -match '^([A-Za-z]:\\|\\\\)') { $_.Folder } else { Get-ExcelText $_.Folder } } } |
             Export-Csv -LiteralPath $dlg.FileName -NoTypeInformation -Encoding UTF8
-        Set-Status "Saved $($rows.Count) video$(if ($rows.Count -ne 1) { 's' }) to $($dlg.FileName)" 'Good'
+        Set-Status "Saved $($rows.Count) video$(if ($rows.Count -ne 1) { 's' })$of to $($dlg.FileName)" 'Good'
     }
 }
 
 try {
     $window = New-XamlWindow $mainXaml
     $script:Window = $window
+    # Most of the screen, whatever its size (and no wider or taller than is comfortable on a very big one).
+    $area = [Windows.SystemParameters]::WorkArea
+    $window.MinWidth = [math]::Min($window.MinWidth, $area.Width); $window.MinHeight = [math]::Min($window.MinHeight, $area.Height)
+    $window.Width = [math]::Max($window.MinWidth, [math]::Min(2100, [math]::Floor($area.Width * 0.88)))
+    $window.Height = [math]::Max($window.MinHeight, [math]::Min(1300, [math]::Floor($area.Height * 0.9)))
     $window.Title = "$script:AppName v$script:AppVersion"
     $icon = Get-AssetImage 'Media-Info-Report.ico'
     if ($icon) { $window.Icon = $icon }
     $ui = @{}
-    foreach ($n in 'BtnExport', 'BtnLook', 'BtnHelp', 'BtnAbout', 'TxtStatus', 'Progress', 'BtnSettings', 'BtnAll', 'BtnScan', 'TxtSummary', 'TxtTotals',
+    foreach ($n in 'BtnCsv', 'BtnReport', 'BtnLook', 'BtnHelp', 'BtnAbout', 'TxtStatus', 'Progress', 'BtnSettings', 'BtnAll', 'BtnScan', 'TxtSummary', 'TxtTotals',
                    'ChkProblems', 'TxtSearch', 'TxtHint', 'Banner', 'BtnCopyCmd', 'TxtBanner', 'Grid', 'BtnPlay', 'BtnFolder', 'DName', 'DProblem', 'DGrid') { $ui[$n] = $window.FindName($n) }
     $script:UI = $ui
     $setLook = { $ui.BtnLook.Content = switch ($script:Settings.Look) { 'Dark' { 'Look: Dark' } 'System' { 'Look: Auto' } default { 'Look: Light' } } }
@@ -1184,7 +1227,8 @@ try {
     $ui.BtnSettings.Add_Click({ Invoke-Safely { Show-SettingsWindow; [void](Show-ProbeBanner); Update-Summary } })
     $ui.BtnScan.Add_Click({ Invoke-Safely { Start-Scan } })
     $ui.BtnAll.Add_Click({ Invoke-Safely { Start-Scan -All } })
-    $ui.BtnExport.Add_Click({ Invoke-Safely { Export-List } })
+    $ui.BtnCsv.Add_Click({ Invoke-Safely { Export-List -Kind Csv } })
+    $ui.BtnReport.Add_Click({ Invoke-Safely { Export-List -Kind Html } })
     $ui.BtnCopyCmd.Add_Click({ [Windows.Clipboard]::SetText('winget install Gyan.FFmpeg'); Set-Status 'Copied: winget install Gyan.FFmpeg. Paste it in a command window, then press Scan.' })
     $ui.BtnPlay.Add_Click({ Invoke-Safely { $i = $ui.Grid.SelectedItem; if ($i) { Start-Process -FilePath $i.Path } } })
     $ui.BtnFolder.Add_Click({ Invoke-Safely { $i = $ui.Grid.SelectedItem; if ($i) { Start-Process -FilePath 'explorer.exe' -ArgumentList "/select,`"$($i.Path)`"" } } })

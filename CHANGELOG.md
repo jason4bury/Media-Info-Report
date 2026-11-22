@@ -6,6 +6,17 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.01] - 2026-11-22
+
+### Changed
+- **Roomier window**: it opens over most of the screen, with bigger text and rows. Long names and
+  problems wrap so they can be read in full, and the details panel widens with the window.
+- **Export CSV** and **HTML report** are two buttons, instead of file types inside Export...
+- **Excel-safe CSV**: names such as 1917, 007 or 3-10 aren't turned into numbers or dates, and names
+  starting with = + or - can't run as a formula.
+- The status line says when an export holds only some of the videos (Problems only or a search),
+  and an export with nothing to save says why.
+
 ## [1.00] - 2026-11-22
 First release.
 

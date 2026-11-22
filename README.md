@@ -6,7 +6,7 @@
 
 Resolution, codecs, audio and size for every video, and which ones a TV may not play.
 
-![Version](https://img.shields.io/badge/version-v1.00-blue) ![Platform](https://img.shields.io/badge/platform-Windows-0078D6) ![PowerShell](https://img.shields.io/badge/PowerShell-5.1-5391FE) ![Licence](https://img.shields.io/badge/licence-MIT-green) ![Last commit](https://img.shields.io/github/last-commit/jason4bury/Media-Info-Report)
+![Version](https://img.shields.io/badge/version-v1.01-blue) ![Platform](https://img.shields.io/badge/platform-Windows-0078D6) ![PowerShell](https://img.shields.io/badge/PowerShell-5.1-5391FE) ![Licence](https://img.shields.io/badge/licence-MIT-green) ![Last commit](https://img.shields.io/github/last-commit/jason4bury/Media-Info-Report)
 
 
 ## ✨ Features
@@ -18,7 +18,9 @@ Media Info Report is a PowerShell/WPF tool that lists every video in your folder
 - **Ready-made TVs**: Sony BRAVIA XR-42A90K (2022) (video and sound formats from Sony's list for that TV), plus general guides for a typical 4K HDR smart TV, a recent 4K TV with AV1 and Dolby Vision, and an older HD TV. A tick for a sound bar or AV receiver on eARC lets TrueHD and DTS-HD sound through. For TVs that read DTS only from MKV files, as the XR-42A90K does, DTS-only sound in other files is flagged.
 - **File-type checks for the XR-42A90K**: each file is checked against [Sony's list](https://helpguide.sony.net/tv/jaep1/v1/en/04-01-03_03.html) of the video, sound and picture size each file type can hold. That list is for the TV's own player; apps on the TV may play more, and frame rates, levels and sample rates aren't checked.
 - **Quick, and quicker next time**: four files are read at a time in the background, and the results are kept, so a later scan only reads new or changed files.
-- **Reports**: Export... saves the list (or just what you've filtered) as an HTML report, coloured red, amber and green, with search, sorting and a Problems only switch, to open in any browser, print or share; or as a CSV file for Excel.
+- **Export CSV**: saves the videos shown in the list as a CSV file for Excel and other spreadsheets (untick Problems only and clear the search to save them all).
+- **Excel-safe CSV**: opens correctly with a double-click, with names such as 1917, 007 or 3-10 as typed. Such names are written as `="1917"` in the file, which programs other than spreadsheets will show as they are; ordinary titles are untouched.
+- **HTML report**: saves the same videos as a page, coloured red, amber and green, with search, sorting and a Problems only switch, to open in any browser, print or share.
 - Totals (size, hours, how many 4K / 1080p), Problems only, search, Play and Open folder, light and dark looks, Help and an About box.
 
 ## 🖼️ Screenshots
@@ -33,7 +35,7 @@ Media Info Report is a PowerShell/WPF tool that lists every video in your folder
 
 ## 📦 Installation
 
-1. Download `Media-Info-Report-v1.00.zip` from the [latest release](../../releases/latest) and unzip it wherever you like to keep it.
+1. Download `Media-Info-Report-v1.01.zip` from the [latest release](../../releases/latest) and unzip it wherever you like to keep it.
 2. Double-click **Media Info Report.cmd** in the unzipped folder. It makes a **Media Info Report** shortcut there and in the Start menu, and starts the tool. From then on, use the shortcut, the Start menu or a pinned taskbar button.
 
 Nothing is installed and no Windows settings are changed. The shortcut runs the script with PowerShell's execution policy bypassed for that run only.
