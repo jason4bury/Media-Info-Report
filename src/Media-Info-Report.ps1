@@ -26,7 +26,7 @@ $ErrorActionPreference = 'Stop'
 # The version lives here and in CHANGELOG.md; Build.cmd stops if they disagree.
 # Two-digit minor: 1.00, 1.01 ... 1.10. The release folder is "Media Info Report v<version>".
 $script:AppName     = 'Media Info Report'
-$script:AppVersion  = '1.01'
+$script:AppVersion  = '1.02'
 $script:Description = 'PowerShell/WPF tool for reporting the resolution, codecs and audio of video files'
 $script:Copyright   = 'Copyright (c) 2026 Jason Rhodes'
 $script:RepoUrl     = 'https://github.com/jason4bury/Media-Info-Report'
@@ -645,6 +645,9 @@ Red: unlikely to play directly (for example a format your TV doesn't play, or so
 CSV FILES AND EXCEL
 The CSV opens correctly in Excel with a double-click: names such as 1917, 007 or 3-10 stay as typed. To do that such names are written as ="1917" in the file, which is what you'll see in a plain text editor, or in a program other than a spreadsheet that reads the CSV. Ordinary titles are written as they are.
 
+REMOVING A FOLDER
+In Settings..., press Remove folder..., pick the folder, then press Save. It only comes off the list: the folder and its files stay where they are. Its videos leave the list at the next Scan.
+
 YOUR TV
 In Settings..., pick your TV (or the nearest) under Your TV: that ticks what it plays (HEVC, AV1, VP9, 4K, HDR, Dolby Vision, DTS, TrueHD and FLAC sound). Change any tick for your own choice. Tick the eARC box if a sound bar or AV receiver is plugged into the TV's eARC socket, as that takes TrueHD and DTS-HD sound straight through. Tick DTS in MKV files only if your TV reads DTS just from .mkv files: DTS in any other file is then flagged red (even with eARC) unless the file has another sound track the TV plays. You can also set the highest bit rate your TV copes with over your network. The checks follow those settings.
 The Sony BRAVIA XR-42A90K (2022) choice takes its video and sound formats from Sony's list for that TV: H.264, HEVC (10-bit too) and VP9 up to 4K, no AV1; AAC, Dolby Digital, Dolby Digital Plus and DTS (the core track, in MKV files) sound. It doesn't play FLAC, and needs a sound system on eARC for TrueHD. While that TV is picked, each file type is checked against Sony's list too: which video and sound it can hold and how big the picture can be (for example VP9 only in MKV and WebM, MP3 only in AVI, and subtitles inside the file only in MKV). File types that aren't on the list are amber. Sony's list is for the TV's own player (USB and home network); Plex, Jellyfin and other apps on the TV may play more. Frame rates, levels and sample rates aren't checked. Changing a tick, other than eARC, makes it My own choice, which doesn't use the list. The HDR ticks and the other ready-made TVs are general guides, so check them against your own TV.
@@ -680,6 +683,55 @@ STYLES
 # ---------------------------------------------------------------------------
 #  Settings: folders, ffprobe and the TV
 # ---------------------------------------------------------------------------
+function Show-RemoveFolderMenu($Button, [Windows.Controls.TextBox]$Box, [Windows.Controls.TextBlock]$Note) {
+    <# Remove folder...: a menu of the folders in the box; the one picked comes out of the box. Nothing is removed from
+       the disk, and nothing is saved until Save. #>
+    $lines = @($Box.Text -split "`r?`n" | ForEach-Object { $_.Trim() } | Where-Object { $_ })
+    if (-not $lines.Count) { $Note.Text = 'There are no folders to remove.'; return }
+    $x = @'
+<ContextMenu xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Foreground="{Ink}" MaxWidth="700" MaxHeight="420">
+  <ContextMenu.Template>
+    <ControlTemplate TargetType="ContextMenu">
+      <Border Background="{Card}" BorderBrush="{Line}" BorderThickness="1" CornerRadius="6" Padding="4">
+        <ScrollViewer VerticalScrollBarVisibility="Auto"><ItemsPresenter/></ScrollViewer>
+      </Border>
+    </ControlTemplate>
+  </ContextMenu.Template>
+  <ContextMenu.ItemContainerStyle>
+    <Style TargetType="MenuItem">
+      <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="MenuItem">
+        <Border x:Name="B" Background="Transparent" CornerRadius="4" Padding="10,7"><ContentPresenter ContentSource="Header"/></Border>
+        <ControlTemplate.Triggers><Trigger Property="IsHighlighted" Value="True"><Setter TargetName="B" Property="Background" Value="{Hover}"/></Trigger></ControlTemplate.Triggers>
+      </ControlTemplate></Setter.Value></Setter>
+    </Style>
+  </ContextMenu.ItemContainerStyle>
+</ContextMenu>
+'@
+    $menu = [Windows.Markup.XamlReader]::Load((New-Object System.Xml.XmlNodeReader ([xml](Expand-Xaml $x))))
+    $menu.FontSize = $Button.FontSize
+    for ($i = 0; $i -lt $lines.Count; $i++) {
+        $text = New-Object Windows.Controls.TextBlock      # not plain text: that would take a _ as a shortcut key
+        $text.Text = $lines[$i]; $text.TextWrapping = 'Wrap'; $text.MaxWidth = 640
+        $item = New-Object Windows.Controls.MenuItem
+        $item.Header = $text
+        $item.Tag = @{ Index = $i; Folder = $lines[$i]; Box = $Box; Note = $Note }
+        $item.Add_Click({
+            $t = $this.Tag
+            $now = @($t.Box.Text -split "`r?`n" | ForEach-Object { $_.Trim() } | Where-Object { $_ })
+            if ($t.Index -ge $now.Count -or $now[$t.Index] -ne $t.Folder) { return }      # the box changed meanwhile
+            $left = @(for ($n = 0; $n -lt $now.Count; $n++) { if ($n -ne $t.Index) { $now[$n] } })
+            $t.Box.Text = $left -join "`r`n"
+            $t.Note.Text = 'Removed from the list. Press Save to keep the change.'
+        })
+        [void]$menu.Items.Add($item)
+    }
+    $menu.PlacementTarget = $Button
+    $menu.Placement = 'Bottom'
+    $Button.ContextMenu = $menu
+    $menu.IsOpen = $true
+}
+
 function Show-SettingsWindow {
     $x = @'
 <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -694,7 +746,11 @@ STYLES
     <TextBlock Text="Video folders" Style="{StaticResource Head}"/>
     <TextBlock Text="One per line. Mapped drives and \\server\share paths work too." Margin="0,6,0,0" Foreground="{Soft}"/>
     <TextBox x:Name="FRoots" Height="74" Margin="0,6,0,0" AcceptsReturn="True" VerticalContentAlignment="Top" VerticalScrollBarVisibility="Auto"/>
-    <Button x:Name="FAdd" Content="Add folder..." HorizontalAlignment="Left" Margin="0,8,0,0"/>
+    <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+      <Button x:Name="FAdd" Content="Add folder..."/>
+      <Button x:Name="FRemove" Content="Remove folder..." Margin="0" ContextMenuService.IsEnabled="False"
+              ToolTip="Pick a folder to take off this list. The folder and its files stay where they are."/>
+    </StackPanel>
     <TextBlock Text="ffprobe.exe (blank: found by itself)" Margin="0,14,0,4"/>
     <DockPanel><Button x:Name="FPick" Content="..." DockPanel.Dock="Right" Margin="6,0,0,0" Padding="10,4"/><TextBox x:Name="FProbe"/></DockPanel>
     <TextBlock x:Name="FProbeNote" Foreground="{Soft}" TextWrapping="Wrap" Margin="0,6,0,0"/>
@@ -726,7 +782,7 @@ STYLES
         <Button x:Name="FOk" Content="Save" Style="{StaticResource Accent}" MinWidth="90" IsDefault="True"/>
         <Button x:Name="FCancel" Content="Close" MinWidth="80" Margin="0" IsCancel="True"/>
       </StackPanel>
-      <TextBlock x:Name="FSaved" Foreground="{Good}" VerticalAlignment="Center"/>
+      <TextBlock x:Name="FSaved" Foreground="{Good}" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,12,0"/>
     </DockPanel>
   </StackPanel>
 </Window>
@@ -775,6 +831,8 @@ STYLES
         $dlg.Description = 'Choose a folder with videos'
         if ($dlg.ShowDialog() -eq 'OK') { $roots.Text = (($roots.Text.TrimEnd() + "`r`n" + $dlg.SelectedPath).Trim()) }
     })
+    # Looked up when clicked: FSaved is fetched further down.
+    $w.FindName('FRemove').Add_Click({ Show-RemoveFolderMenu $this $roots $w.FindName('FSaved') })
     $w.FindName('FPick').Add_Click({
         $dlg = New-Object Microsoft.Win32.OpenFileDialog
         $dlg.Filter = 'ffprobe (ffprobe.exe)|ffprobe.exe|Programs (*.exe)|*.exe'

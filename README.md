@@ -6,7 +6,7 @@
 
 Resolution, codecs, audio and size for every video, and which ones a TV may not play.
 
-![Version](https://img.shields.io/badge/version-v1.01-blue) ![Platform](https://img.shields.io/badge/platform-Windows-0078D6) ![PowerShell](https://img.shields.io/badge/PowerShell-5.1-5391FE) ![Licence](https://img.shields.io/badge/licence-MIT-green) ![Last commit](https://img.shields.io/github/last-commit/jason4bury/Media-Info-Report)
+![Version](https://img.shields.io/badge/version-v1.02-blue) ![Platform](https://img.shields.io/badge/platform-Windows-0078D6) ![PowerShell](https://img.shields.io/badge/PowerShell-5.1-5391FE) ![Licence](https://img.shields.io/badge/licence-MIT-green) ![Last commit](https://img.shields.io/github/last-commit/jason4bury/Media-Info-Report)
 
 
 ## ✨ Features
@@ -35,7 +35,7 @@ Media Info Report is a PowerShell/WPF tool that lists every video in your folder
 
 ## 📦 Installation
 
-1. Download `Media-Info-Report-v1.01.zip` from the [latest release](../../releases/latest) and unzip it wherever you like to keep it.
+1. Download `Media-Info-Report-v1.02.zip` from the [latest release](../../releases/latest) and unzip it wherever you like to keep it.
 2. Double-click **Media Info Report.cmd** in the unzipped folder. It makes a **Media Info Report** shortcut there and in the Start menu, and starts the tool. From then on, use the shortcut, the Start menu or a pinned taskbar button.
 
 Nothing is installed and no Windows settings are changed. The shortcut runs the script with PowerShell's execution policy bypassed for that run only.
@@ -53,7 +53,7 @@ Double-click **Build.cmd** in the repo folder. It reads `build.json`, checks eve
 ## 🚀 Usage
 
 1. Start Media Info Report (the shortcut, the Start menu, or **Media Info Report.cmd**).
-2. Press **Settings...**: add your video folders (your Videos folder is there to begin with; NAS shares and mapped drives work too) and pick your TV under **Your TV** (or tick what it plays).
+2. Press **Settings...**: add your video folders (your Videos folder is there to begin with; NAS shares and mapped drives work too) and pick your TV under **Your TV** (or tick what it plays). **Remove folder...** takes a folder off the list without touching its files.
 3. Press **Scan**. Click a video for its details; **Problems only** shows just the ones that may not play.
 
 ## ⚙️ Configuration

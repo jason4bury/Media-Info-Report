@@ -6,6 +6,12 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.02] - 2026-11-22
+
+### Added
+- **Remove folder...** beside Add folder...: pick a folder from the menu to take it off the list.
+  The folder and its files stay where they are.
+
 ## [1.01] - 2026-11-22
 
 ### Changed
