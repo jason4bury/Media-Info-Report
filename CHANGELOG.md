@@ -6,6 +6,11 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.03] - 2026-11-23
+### Changed
+- The TV choice in **Settings** starts as the **Sony BRAVIA XR-42A90K (2022)**, with its ticks, instead of the
+  typical 4K HDR smart TV. Any other choice (or your own ticks) can still be picked and is kept.
+
 ## [1.02] - 2026-11-22
 
 ### Added

@@ -26,7 +26,7 @@ $ErrorActionPreference = 'Stop'
 # The version lives here and in CHANGELOG.md; Build.cmd stops if they disagree.
 # Two-digit minor: 1.00, 1.01 ... 1.10. The release folder is "Media Info Report v<version>".
 $script:AppName     = 'Media Info Report'
-$script:AppVersion  = '1.02'
+$script:AppVersion  = '1.03'
 $script:Description = 'PowerShell/WPF tool for reporting the resolution, codecs and audio of video files'
 $script:Copyright   = 'Copyright (c) 2026 Jason Rhodes'
 $script:RepoUrl     = 'https://github.com/jason4bury/Media-Info-Report'
@@ -99,10 +99,10 @@ function Get-AssetImage {
 
 function Get-AppSetting {
     <# Settings from settings.json in the data folder: the look, the video folders, ffprobe's place
-       and what the TV plays. To begin with: Windows' Videos folder and a typical recent smart TV. #>
+       and what the TV plays. To begin with: Windows' Videos folder and the Sony BRAVIA XR-42A90K. #>
     $s = @{ Look = 'Light'; Roots = @([Environment]::GetFolderPath('MyVideos')); FFprobe = ''
-            TvModel = 'Typical 4K HDR smart TV'
-            TvHevc = $true; TvAv1 = $false; TvVp9 = $true; Tv4K = $true; TvHdr = $true; TvDv = $false; TvDts = $false; TvDtsMkv = $false; TvTrueHd = $false; TvFlac = $true; TvEarc = $false; MaxMbps = 0 }
+            TvModel = 'Sony BRAVIA XR-42A90K (2022)'   # the ticks below are that choice's (see the TV list further down)
+            TvHevc = $true; TvAv1 = $false; TvVp9 = $true; Tv4K = $true; TvHdr = $true; TvDv = $true; TvDts = $true; TvDtsMkv = $true; TvTrueHd = $false; TvFlac = $false; TvEarc = $false; MaxMbps = 0 }
     if (Test-Path -LiteralPath $script:SettingsPath) {
         try {
             $j = Get-Content -LiteralPath $script:SettingsPath -Raw -Encoding UTF8 | ConvertFrom-Json
@@ -637,7 +637,7 @@ WHAT IT NEEDS
 ffprobe, part of the free FFmpeg, reads the video details. If it isn't found, the app says how to get it (in a command window: winget install Gyan.FFmpeg), or you can point Settings... at your own ffprobe.exe.
 
 SCANNING
-Settings... sets the folders to scan (your Videos folder to begin with; NAS shares and mapped drives work too) and what your TV plays. Scan reads four files at a time in the background, and Stop ends it early. The results are kept, so the next scan only reads new or changed files; Scan all again reads everything.
+Settings... sets the folders to scan (your Videos folder to begin with; NAS shares and mapped drives work too) and what your TV plays (the Sony BRAVIA XR-42A90K to begin with). Scan reads four files at a time in the background, and Stop ends it early. The results are kept, so the next scan only reads new or changed files; Scan all again reads everything.
 
 WHAT THE COLOURS MEAN
 Red: unlikely to play directly (for example a format your TV doesn't play, or sound it can't decode, so you'd see a picture with no sound). Amber: may need your media server to convert it, or may stutter. Green: should play.
